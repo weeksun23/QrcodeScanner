@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title></title>
+<style>
+	body,html{width:100%;height:100%}
+	body{margin:0;padding:0;}
+</style>
+</head>
+<body>
+	<video width='100%' height='100%'></video>
+	<canvas id='qr-canvas' width='300' height='250' style='display:none;'></canvas>
+	<script src="jsqrcode-combined.min.js"></script>
+	<script>
+		/*	
+			flag : -1不支持 1扫描成功 0扫描失败
+			parent.QRCODE_SCAN_CALLBACK = function(flag,result){
+			
+			};  
+		*/
+		window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+	    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+		window.onload = function(){
+			window.continueScan = function(){
+				if(!isPause) return;
+				isPause = false;
+            	scan();
+			};
+			window.pauseScan = function(){
+				if(isPause) return;
+				clearTimeout(t);
+				isPause = true;
+			};
+			var video = document.querySelector("video");
+	        var canvas = document.querySelector("#qr-canvas");
+	        var context = canvas.getContext('2d');
+	        var scanTime = 1000;
+	        var isPause = false;
+	        var t;
+	        function scan(){
+	        	if(isPause) return;
+	        	context.drawImage(video, 0, 0, 300, 250);
+                try {
+                    qrcode.decode();
+                } catch (e) {
+                	//解释失败 继续扫描
+                	parent.QRCODE_SCAN_CALLBACK(0);
+                    t = setTimeout(function(){
+                    	scan();
+                    }, scanTime);
+                }
+	        }
+	        if (navigator.getUserMedia) {
+	            navigator.getUserMedia({
+	            	audio: true, video: true
+	            }, function(stream){
+	            	video.src = (window.URL && window.URL.createObjectURL(stream)) || stream;
+	                video.play();
+					scan();
+	            }, function(error) {
+					if (error.PERMISSION_DENIED) {
+						parent.QRCODE_SCAN_CALLBACK(-1,'用户拒绝了浏览器请求媒体的权限');
+					} else if (error.NOT_SUPPORTED_ERROR) {
+						parent.QRCODE_SCAN_CALLBACK(-1,'对不起，您的浏览器不支持拍照功能，请使用其他浏览器');
+					} else if (error.MANDATORY_UNSATISFIED_ERROR) {
+						parent.QRCODE_SCAN_CALLBACK(-1,'指定的媒体类型未接收到媒体流');
+					} else {
+						parent.QRCODE_SCAN_CALLBACK(-1,'系统未能获取到摄像头，请确保摄像头已正确安装。或尝试刷新页面，重试');
+					}
+	            });
+	        } else {
+	        	parent.QRCODE_SCAN_CALLBACK(-1,'对不起，您的浏览器不支持拍照功能，请使用其他浏览器');
+	        }
+	        qrcode.callback = function (result) {
+	        	parent.QRCODE_SCAN_CALLBACK(1,result);
+	        };
+		};
+	</script>
+</body>
+</html>
