@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title></title>
+<style>
+	body,html{width:100%;height:100%}
+	body,p{margin:0;padding:0;}
+	body{background-color: #f2f2f2}
+	.tac{text-align: center;}
+	.qrcodedes,.qrcoderesult{text-align: center;margin-top: 10px;}
+	.zone{padding-top: 50px;}
+	.zone .qrcode{margin: 0px auto}
+	.qrcode{border: 1px solid #d2d2d2;width: 300px;height: 125px;position: relative;background-color: #888}
+	.qrcode iframe{width: 100%;height: 100%;}
+</style>
+</head>
+<body>
+	<div class='zone'>
+		<div id='qrcodeScanner'></div>
+	</div>
+	<p class='qrcoderesult'></p>
+	<p class='tac'>
+		<button onclick='dealPauseContinue(this);'>暂停</button>
+		<button onclick='dealStopPlay(this);'>停止</button>
+	</p>
+	<script src='src/qrcodescanner.js'></script>
+	<script>
+		var scanner = new QrcodeScanner(document.querySelector("#qrcodeScanner"),{
+			//识别成功，返回识别结果
+			onDecodeSuccess : function(result){
+				document.querySelector(".qrcoderesult").innerHTML = '识别成功，结果：' + result;
+			},
+			//识别失败
+			onDecodeError : function(){
+				document.querySelector(".qrcoderesult").innerHTML = '扫描中,请稍候...';
+			},
+			//初始化失败，返回原因
+			onInitError : function(result){
+				document.querySelector(".qrcoderesult").innerHTML = result;
+			}
+		});
+		scanner.init();
+		function beginScann(){
+			scanner.goon();
+		}
+		function dealPauseContinue(el){
+			if(el.innerHTML === '暂停'){
+				scanner.pause();
+				el.innerHTML = '继续';
+			}else{
+				scanner.goon();
+				el.innerHTML = '暂停';
+			}
+		}
+		function dealStopPlay(el){
+			if(el.innerHTML === '停止'){
+				scanner.close();
+				el.innerHTML = '开始';
+			}else{
+				scanner.init();
+				el.innerHTML = '停止';
+			}
+		}
+	</script>
+</body>
+</html>
