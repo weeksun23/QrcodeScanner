@@ -8,8 +8,8 @@
 	function QrcodeScanner(element,options){
 		this.element = element;
 		this.options = mix({
-			width : 150,
-			height : 125,
+			width : 300,
+			height : 250,
 			scanningSrc : 'src/scanning.html?' + (+new Date),
 			//识别成功，返回识别结果
 			onDecodeSuccess : function(result){},

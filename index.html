@@ -29,6 +29,8 @@
 	<script src='src/qrcodescanner.js'></script>
 	<script>
 		var scanner = new QrcodeScanner(document.querySelector("#qrcodeScanner"),{
+			width : 300,
+			height : 250,
 			//识别成功，返回识别结果
 			onDecodeSuccess : function(result){
 				document.querySelector(".qrcoderesult").innerHTML = '识别成功，结果：' + result;
